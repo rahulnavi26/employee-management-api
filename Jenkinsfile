@@ -23,7 +23,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t employee-management-api:v2 .'
+                sh 'docker -H unix:///home/ideapad/.docker/desktop/docker.sock build -t employee-management-api:v2 .'
             }
         }
     }
