@@ -3,6 +3,7 @@ pipeline {
     agent any
 
     stages {
+
         stage('Install Dependencies') {
             steps {
                 sh '''
@@ -43,6 +44,9 @@ pipeline {
                 ]) {
                     sh '''
                         set +x
+
+                        export DOCKER_CONFIG=$(mktemp -d)
+                        trap 'rm -rf "$DOCKER_CONFIG"' EXIT
 
                         printf '%s' "$DOCKERHUB_TOKEN" | \
                         docker -H unix:///home/ideapad/.docker/desktop/docker.sock \
