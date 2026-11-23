@@ -45,6 +45,14 @@ pipeline {
                     sh '''
                         set +x
                         export DOCKER_CONFIG=$(mktemp -d)
+                        echo "DOCKER_CONFIG=$DOCKER_CONFIG"
+                        echo "HOME=$HOME"
+                        echo "DOCKER_CONFIG file:"
+                        if [ -f "$DOCKER_CONFIG/config.json" ]; then
+                            cat "$DOCKER_CONFIG/config.json"
+                        else
+                            echo "No config.json found"
+                        fi
 
                         echo "Docker config directory: $DOCKER_CONFIG"
                         echo "Docker config contents:"
