@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -16,14 +17,43 @@ pipeline {
             steps {
                 sh '''
                     . .venv-ci/bin/activate
-                   python -m pytest -v
+                    python -m pytest -v
                 '''
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker -H unix:///home/ideapad/.docker/desktop/docker.sock build -t employee-management-api:v2 .'
+                sh '''
+                    docker -H unix:///home/ideapad/.docker/desktop/docker.sock build \
+                    -t employee-management-api:v2 \
+                    -t rahuldocker04/employee-management-api:v2 .
+                '''
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKERHUB_USERNAME',
+                        passwordVariable: 'DOCKERHUB_TOKEN'
+                    )
+                ]) {
+                    sh '''
+                        set +x
+
+                        printf '%s' "$DOCKERHUB_TOKEN" | \
+                        docker -H unix:///home/ideapad/.docker/desktop/docker.sock \
+                        login --username "$	rahuldocker04" --dckr_pat_aF2SzOaqNzEiHUPK5dxiZfJViI8-stdin
+
+                        docker -H unix:///home/ideapad/.docker/desktop/docker.sock \
+                        push rahuldocker04/employee-management-api:v2
+
+                        docker -H unix:///home/ideapad/.docker/desktop/docker.sock logout
+                    '''
+                }
             }
         }
     }
