@@ -44,8 +44,11 @@ pipeline {
                 ]) {
                     sh '''
                         set +x
-
                         export DOCKER_CONFIG=$(mktemp -d)
+
+                        echo "Docker config directory: $DOCKER_CONFIG"
+                        echo "Docker config contents:"
+                        ls -la "$DOCKER_CONFIG"
                         trap 'rm -rf "$DOCKER_CONFIG"' EXIT
 
                         printf '%s' "$DOCKERHUB_TOKEN" | \
