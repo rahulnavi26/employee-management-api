@@ -46,12 +46,15 @@ pipeline {
 
                         printf '%s' "$DOCKERHUB_TOKEN" | \
                         docker -H unix:///home/ideapad/.docker/desktop/docker.sock \
-                        login --username "$	rahuldocker04" --dckr_pat_aF2SzOaqNzEiHUPK5dxiZfJViI8-stdin
+                        login docker.io \
+                        --username "$DOCKERHUB_USERNAME" \
+                        --password-stdin
 
                         docker -H unix:///home/ideapad/.docker/desktop/docker.sock \
                         push rahuldocker04/employee-management-api:v2
 
-                        docker -H unix:///home/ideapad/.docker/desktop/docker.sock logout
+                        docker -H unix:///home/ideapad/.docker/desktop/docker.sock \
+                        logout docker.io
                     '''
                 }
             }
