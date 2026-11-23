@@ -27,8 +27,8 @@ pipeline {
             steps {
                 sh '''
                     docker -H unix:///home/ideapad/.docker/desktop/docker.sock build \
-                    -t employee-management-api:v2 \
-                    -t rahuldocker04/employee-management-api:v2 .
+                        -t employee-management-api:v2 \
+                        -t rahuldocker04/employee-management-api:v2 .
                 '''
             }
         }
@@ -44,32 +44,24 @@ pipeline {
                 ]) {
                     sh '''
                         set +x
-                        export DOCKER_CONFIG=$(mktemp -d)
-                        echo "DOCKER_CONFIG=$DOCKER_CONFIG"
-                        echo "HOME=$HOME"
-                        echo "DOCKER_CONFIG file:"
-                        if [ -f "$DOCKER_CONFIG/config.json" ]; then
-                            cat "$DOCKER_CONFIG/config.json"
-                        else
-                            echo "No config.json found"
-                        fi
+                        set -eu
 
-                        echo "Docker config directory: $DOCKER_CONFIG"
-                        echo "Docker config contents:"
-                        ls -la "$DOCKER_CONFIG"
+                        export DOCKER_CONFIG=$(mktemp -d)
                         trap 'rm -rf "$DOCKER_CONFIG"' EXIT
+
+                        printf '{}' > "$DOCKER_CONFIG/config.json"
 
                         printf '%s' "$DOCKERHUB_TOKEN" | \
                         docker -H unix:///home/ideapad/.docker/desktop/docker.sock \
-                        login docker.io \
-                        --username "$DOCKERHUB_USERNAME" \
-                        --password-stdin
+                            login docker.io \
+                            --username "$DOCKERHUB_USERNAME" \
+                            --password-stdin
 
                         docker -H unix:///home/ideapad/.docker/desktop/docker.sock \
-                        push rahuldocker04/employee-management-api:v2
+                            push rahuldocker04/employee-management-api:v2
 
                         docker -H unix:///home/ideapad/.docker/desktop/docker.sock \
-                        logout docker.io
+                            logout docker.io
                     '''
                 }
             }
