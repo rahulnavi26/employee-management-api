@@ -51,18 +51,20 @@ pipeline {
 
                         printf '{}' > "$DOCKER_CONFIG/config.json"
 
-                        printf '%s' "$DOCKERHUB_TOKEN" | \
-                        docker -H unix:///home/ideapad/.docker/desktop/docker.sock \
+                                                printf '%s' "$DOCKERHUB_TOKEN" | \
+                        docker --config "$DOCKER_CONFIG" \
+                            -H unix:///home/ideapad/.docker/desktop/docker.sock \
                             login docker.io \
                             --username "$DOCKERHUB_USERNAME" \
                             --password-stdin
 
-                        docker -H unix:///home/ideapad/.docker/desktop/docker.sock \
+                        docker --config "$DOCKER_CONFIG" \
+                            -H unix:///home/ideapad/.docker/desktop/docker.sock \
                             push rahuldocker04/employee-management-api:v2
 
-                        docker -H unix:///home/ideapad/.docker/desktop/docker.sock \
+                        docker --config "$DOCKER_CONFIG" \
+                            -H unix:///home/ideapad/.docker/desktop/docker.sock \
                             logout docker.io
-                    '''
                 }
             }
         }
