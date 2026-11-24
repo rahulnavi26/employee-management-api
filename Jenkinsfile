@@ -34,44 +34,47 @@ pipeline {
         }
 
         stage('Push to Docker Hub') {
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'dockerhub-credentials',
-                        usernameVariable: 'DOCKERHUB_USERNAME',
-                        passwordVariable: 'DOCKERHUB_TOKEN'
-                    )
-                ]) {
-                    sh '''
-                        set +x
-                        set -eu
+    steps {
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'dockerhub-credentials',
+                usernameVariable: 'DOCKERHUB_USERNAME',
+                passwordVariable: 'DOCKERHUB_TOKEN'
+            )
+        ]) {
+            sh '''
+                set +x
+                set -eu
 
-                        export DOCKER_CONFIG=$(mktemp -d)
-                        chmod 700 "$DOCKER_CONFIG"
+                export DOCKER_CONFIG=$(mktemp -d)
+                mkdir -p "$DOCKER_CONFIG/bin"
+                chmod 700 "$DOCKER_CONFIG"
+                printf '{}' > "$DOCKER_CONFIG/config.json"
+                chmod 600 "$DOCKER_CONFIG/config.json"
 
-                        trap 'rm -rf "$DOCKER_CONFIG"' EXIT
+                trap 'rm -rf "$DOCKER_CONFIG"' EXIT
 
-                        printf '{}' > "$DOCKER_CONFIG/config.json"
-                        chmod 600 "$DOCKER_CONFIG/config.json"
+                echo "Logging in to Docker Hub..."
 
-                        echo "Docker temporary configuration created."
+                printf '%s' "$DOCKERHUB_TOKEN" | \
+                PATH="$DOCKER_CONFIG/bin" /usr/bin/docker \
+                    --config "$DOCKER_CONFIG" \
+                    -H unix:///home/ideapad/.docker/desktop/docker.sock \
+                    login docker.io \
+                    --username "$DOCKERHUB_USERNAME" \
+                    --password-stdin
 
-                        printf '%s' "$DOCKERHUB_TOKEN" | \
-                        docker --config "$DOCKER_CONFIG" \
-                            -H unix:///home/ideapad/.docker/desktop/docker.sock \
-                            login --username "$DOCKERHUB_USERNAME" \
-                            --password-stdin docker.io
+                echo "Pushing Docker image..."
 
-                        docker --config "$DOCKER_CONFIG" \
-                            -H unix:///home/ideapad/.docker/desktop/docker.sock \
-                            push rahuldocker04/employee-management-api:v2
+                PATH="$DOCKER_CONFIG/bin" /usr/bin/docker \
+                    --config "$DOCKER_CONFIG" \
+                    -H unix:///home/ideapad/.docker/desktop/docker.sock \
+                    push rahuldocker04/employee-management-api:v2
 
-                        docker --config "$DOCKER_CONFIG" \
-                            -H unix:///home/ideapad/.docker/desktop/docker.sock \
-                            logout docker.io
-                    '''
-                }
-            }
+                echo "Docker image pushed successfully."
+                        '''
+        }
+    }
         }
     }
 }
