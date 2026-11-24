@@ -47,11 +47,18 @@ pipeline {
                         set -eu
 
                         export DOCKER_CONFIG=$(mktemp -d)
+                        chmod 700 "$DOCKER_CONFIG"
+
                         trap 'rm -rf "$DOCKER_CONFIG"' EXIT
 
                         printf '{}' > "$DOCKER_CONFIG/config.json"
+                        chmod 600 "$DOCKER_CONFIG/config.json"
 
-                                                printf '%s' "$DOCKERHUB_TOKEN" | \
+                        echo "Docker config directory: $DOCKER_CONFIG"
+                        echo "Docker config contents:"
+                        cat "$DOCKER_CONFIG/config.json"
+
+                        printf '%s' "$DOCKERHUB_TOKEN" | \
                         docker --config "$DOCKER_CONFIG" \
                             -H unix:///home/ideapad/.docker/desktop/docker.sock \
                             login docker.io \
