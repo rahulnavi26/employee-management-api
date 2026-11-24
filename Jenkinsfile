@@ -54,16 +54,13 @@ pipeline {
                         printf '{}' > "$DOCKER_CONFIG/config.json"
                         chmod 600 "$DOCKER_CONFIG/config.json"
 
-                        echo "Docker config directory: $DOCKER_CONFIG"
-                        echo "Docker config contents:"
-                        cat "$DOCKER_CONFIG/config.json"
+                        echo "Docker temporary configuration created."
 
                         printf '%s' "$DOCKERHUB_TOKEN" | \
                         docker --config "$DOCKER_CONFIG" \
                             -H unix:///home/ideapad/.docker/desktop/docker.sock \
-                            login docker.io \
-                            --username "$DOCKERHUB_USERNAME" \
-                            --password-stdin
+                            login --username "$DOCKERHUB_USERNAME" \
+                            --password-stdin docker.io
 
                         docker --config "$DOCKER_CONFIG" \
                             -H unix:///home/ideapad/.docker/desktop/docker.sock \
