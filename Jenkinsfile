@@ -65,6 +65,7 @@ pipeline {
                         docker --config "$DOCKER_CONFIG" \
                             -H unix:///home/ideapad/.docker/desktop/docker.sock \
                             logout docker.io
+                    '''
                 }
             }
         }
