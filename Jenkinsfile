@@ -56,7 +56,10 @@ pipeline {
                         printf '{}' > "$DOCKER_CONFIG/config.json"
                         chmod 600 "$DOCKER_CONFIG/config.json"
 
-                        trap 'rm -rf "$DOCKER_CONFIG"' EXIT
+                        trap '/bin/rm -rf "$DOCKER_CONFIG"' EXIT
+
+                        # Prevent Docker from discovering Linux credential helpers.
+                        export PATH="$DOCKER_CONFIG/bin"
 
                         printf '%s' "$DOCKERHUB_TOKEN" | \
                         /usr/bin/docker \
